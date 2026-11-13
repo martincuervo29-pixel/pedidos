@@ -24,7 +24,13 @@ try{$('ven').value=localStorage.getItem('vendedora')||'';}catch(e){}
 let MODO='xls';
 function modo(k){MODO=k;$('pxls').style.display=k=='xls'?'':'none';$('pwa').style.display=k=='wa'?'':'none';
  $('tx1').className=k=='xls'?'on':'';$('tx2').className=k=='wa'?'on':'';m.textContent='';}
-function revisarWa(t){            // obligatorio: el formato del mensaje de pedido (producto + renglones con *)
+function tabla(t){                // lista de la tienda: 'Producto (Modelo)<tab>cant<tab>SKU' -> formato WhatsApp
+  const s={};let hay=0;
+  for(const l of t.split('\n')){const m=l.match(/^\s*(.+?)\s*\(([^()]+)\)\s*[\t;,| ]+\s*(\d+)\s*[\t;,| ]+\s*(\S+)\s*$/);
+    if(!m||!(+m[3]>0))continue;(s[m[1].trim()]=s[m[1].trim()]||[]).push('* '+m[4]+' '+m[2].trim()+' x'+m[3]);hay++;}
+  return hay?Object.entries(s).map(([p,ls])=>p+'\n'+ls.join('\n')).join('\n')+'\n':t;
+}
+function revisarWa(t){t=tabla(t);            // obligatorio: el formato del mensaje de pedido (producto + renglones con *)
   let n=0,fundas=0,prod='';
   for(const l0 of t.split('\n')){const l=l0.trim();if(!l)continue;if(l.startsWith('---'))break;
     const it=l.match(/^[*•]\s*\S+\s+.+?[x×]\s*(\d+)\s*$/i);
