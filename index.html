@@ -34,7 +34,7 @@ function revisarWa(t){t=tabla(t);            // obligatorio: el formato del mens
   let n=0,fundas=0,prod='';
   for(const l0 of t.split('\n')){const l=l0.trim();if(!l)continue;if(l.startsWith('---'))break;
     const it=l.match(/^[*•]\s*\S+\s+.+?[x×]\s*(\d+)\s*$/i);
-    if(it){n++;if(/relieve|tpupc/i.test(prod))fundas+=Number(it[1]);}
+    if(it){n++;if(/relieve|tpupc|silicone case/i.test(prod))fundas+=Number(it[1]);}
     else if(!/^[-–·]/.test(l)&&!/^(unidades|subtotal|iva|total|descuento|\(lista)/i.test(l))prod=l;}
   if(!n)throw 'Eso no es el pedido como lo manda el cliente: tienen que estar los productos y debajo los renglones que empiezan con * (ej: * 3Zy iPhone 17 Pro x100). Copiá el mensaje completo de WhatsApp.';
   return {n,fundas};
@@ -50,7 +50,7 @@ function revisar(buf){            // obligatorio: tiene que ser la lista mayoris
     if(!col){const i=k=>up.findIndex(t=>t.startsWith(k));
       if(up.includes('CÓDIGO')||up.includes('CODIGO'))col={p:i('PRODUCTO'),c:i('CANTIDAD')};continue;}
     const cant=Number(f[col.c]);if(!String(f[col.p]).trim()||!(cant>0))continue;
-    n++;if(/relieve|tpupc/i.test(f[col.p]))fundas+=cant;}
+    n++;if(/relieve|tpupc|silicone case/i.test(f[col.p]))fundas+=cant;}
   if(!col)throw 'No encontré la tabla del pedido en la hoja MI PEDIDO. Subí el Excel sin modificarlo.';
   if(!n)throw 'La hoja MI PEDIDO está vacía. Abrí el Excel, tocá Guardar y volvé a subirlo.';
   return {n,fundas,filas};
@@ -72,7 +72,7 @@ $('b').onclick=async()=>{
     if(nota)XLSX.utils.book_append_sheet(wb2,XLSX.utils.aoa_to_sheet([[nota]]),'ACLARACIONES');
     envio.data=XLSX.write(wb2,{type:'base64',bookType:'xlsx'});}
   if(!r.fundas){m.style.color='#2e7d32';$('b').disabled=false;
-    return m.textContent='Este pedido no tiene fundas para producción (relieve / TpuPc): no hace falta mandarlo a la fábrica. ✔';}
+    return m.textContent='Este pedido no tiene fundas para producción (relieve / logo / TpuPc): no hace falta mandarlo a la fábrica. ✔';}
   m.textContent='Enviando…';
   const ok=()=>{m.style.color='#2e7d32';
       m.textContent='\u2714 Pedido enviado: '+r.n+' renglones ('+r.fundas+' fundas para imprimir).\nCliente: '+cli.toUpperCase()+' \u00b7 ID '+idc+(nota?'\n\ud83d\udcdd Con aclaraci\u00f3n':'');
